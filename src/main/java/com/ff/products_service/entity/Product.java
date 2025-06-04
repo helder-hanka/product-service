@@ -3,12 +3,13 @@ package com.ff.products_service.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Setter
 @Getter
-@Entity
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class Product {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,5 +19,4 @@ public class Product {
 
     private Double price;
     private  int stock;
-
 }

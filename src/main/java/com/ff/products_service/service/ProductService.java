@@ -8,40 +8,40 @@ import java.util.List;
 
 @Service
 public class ProductService {
-    private final ProductRepository productRepository;
-    public ProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
+
+    private final ProductRepository productRepo;
+    public ProductService(ProductRepository productRepo) {
+        this.productRepo = productRepo;
     }
 
     public List<Product> findAll() {
-        return productRepository.findAll();
+        return productRepo.findAll();
     }
 
     public Product findById(Long id) {
-        return productRepository.findById(id).orElse(null);
+        return productRepo.findById(id).orElse(null);
     }
 
     public Product create(Product product) {
-        return productRepository.save(product);
+        return productRepo.save(product);
     }
 
-    public Product update(Long id,Product product) {
-        Product oldProduct = findById(id);
-        if(oldProduct == null) return null;
+    public Product update(Long id, Product product) {
+        Product oldProduct = productRepo.findById(id).orElse(null);
+        if (oldProduct == null) return null;
         oldProduct.setName(product.getName());
         oldProduct.setDescription(product.getDescription());
         oldProduct.setPrice(product.getPrice());
         oldProduct.setStock(product.getStock());
-        return productRepository.save(oldProduct);
+        return productRepo.save(oldProduct);
     }
 
     public void delete(Long id) {
-        productRepository.deleteById(id);
+        productRepo.deleteById(id);
     }
 
-    public int getStock(Long id) {
-        Product product = findById(id);
+    public int getStockByProductId(Long productId) {
+        Product product = productRepo.findById(productId).orElse(null);
         return product != null ? product.getStock() : -1;
     }
-
 }

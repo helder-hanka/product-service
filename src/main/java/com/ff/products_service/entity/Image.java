@@ -1,6 +1,7 @@
 package com.ff.products_service.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 
 @Entity
