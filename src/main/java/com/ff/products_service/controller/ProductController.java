@@ -8,9 +8,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-public class ProductController {
+public class ProductController 
     private final ProductService productService;
     public ProductController(ProductService productService) {
+
         this.productService = productService;
     }
 
@@ -41,6 +42,8 @@ public class ProductController {
 
     @GetMapping("/{id}/stock")
     public int getProductStock(@PathVariable Long id) {
+
         return productService.getStockByProductId(id);
+
     }
 }
