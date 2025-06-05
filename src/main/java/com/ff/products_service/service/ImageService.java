@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static org.springframework.data.util.ClassUtils.ifPresent;
-
 @Service
 public class ImageService {
     @Autowired
@@ -18,16 +16,8 @@ public class ImageService {
         return imageRepository.findByProductId(productId);
     }
 
-    public Image createImage(Image image){
-        if (image.isMain()){
-            // Désactiver l’image principale actuelle (s’il y en a une)
-            imageRepository.findFirstByProductIdAndIsMainTrue(image.getProduct().getId())
-                    .ifPresent(existingImage -> {
-                        existingImage.setMain(false);
-                        imageRepository.save(existingImage);
-                    });
-        }
-        return imageRepository.save(image);
+    public void createImage(Image image){
+        imageRepository.save(image);
     }
 
     public Image updateImage(Long id, Image newImage){
