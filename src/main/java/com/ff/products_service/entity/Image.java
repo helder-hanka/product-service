@@ -17,7 +17,6 @@ public class Image {
     private String url;
     private String title;
     private boolean isMain;
-    private int position;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
