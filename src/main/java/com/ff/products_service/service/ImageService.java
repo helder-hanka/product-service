@@ -20,12 +20,13 @@ public class ImageService {
         imageRepository.save(image);
     }
 
-    public Image updateImage(Long id, Image newImage){
-        return imageRepository.findById(id).map(image -> {
+    public void updateImage(Long id, Image newImage){
+        imageRepository.findById(id).map(image -> {
             image.setUrl(newImage.getUrl());
             image.setTitle(newImage.getTitle());
+            image.setMain(newImage.isMain());
             return imageRepository.save(image);
-        }).orElse(null);
+        });
     }
 
     public void deleteImageById(Long id){
@@ -35,5 +36,9 @@ public class ImageService {
     public void deleteImageAllByProductId(Long productId){
         List<Image> images = imageRepository.findByProductId(productId);
         imageRepository.deleteAll(images);
+    }
+
+    public Image findImageById(Long id) {
+        return imageRepository.findById(id).orElse(null);
     }
 }
