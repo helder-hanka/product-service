@@ -2,7 +2,6 @@ package com.ff.products_service.utils;
 
 import com.ff.products_service.dto.ImageResponseDTO;
 import com.ff.products_service.dto.ProductResponseDTO;
-import com.ff.products_service.dto.ProductWithImagesRequest;
 import com.ff.products_service.entity.Image;
 import com.ff.products_service.entity.Product;
 import org.mapstruct.Mapper;
