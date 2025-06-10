@@ -8,14 +8,17 @@ import com.ff.products_service.entity.Image;
 import com.ff.products_service.entity.Product;
 import com.ff.products_service.service.ImageService;
 import com.ff.products_service.service.ProductService;
+import com.ff.products_service.utils.ApiResponse;
 import com.ff.products_service.utils.ProductMapper;
 import com.ff.products_service.utils.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -145,8 +148,28 @@ public class ProductController {
 }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id) {
+    @Transactional
+    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long id) {
+        Product product = productService.findById(id);
+        if (product == null) {
+            throw new ResourceNotFoundException("Product not found with id " + id);
+        }
+
+        List<Image> images = imageService.getImagesByProductId(id);
+
+        if (images == null || images.isEmpty()) {
+            throw new ResourceNotFoundException("Image not found with id " + id);
+        }
+        imageService.deleteImageAllByProductId(id);
         productService.delete(id);
+
+        ApiResponse response = new ApiResponse(
+                "The product has been successfully deleted." ,
+                HttpStatus.OK.value(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}/stock")
