@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,7 +27,8 @@ public class UpdateProductWithImagesRequest {
     private List<UpdateProductWithImagesRequest.ImageRequest> images;
 
     @Data
-    public static class ImageRequest {
+    @EqualsAndHashCode(callSuper = true)
+    public static class ImageRequest extends AbstractImageRequest {
         private Long id;
         @NotBlank(message = "L'URL est obligatoire")
         private String url;
