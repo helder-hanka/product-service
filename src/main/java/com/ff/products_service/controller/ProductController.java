@@ -1,16 +1,11 @@
 package com.ff.products_service.controller;
 
-import com.ff.products_service.dto.ProductResponseDTO;
-import com.ff.products_service.dto.ProductWithImagesRequest;
-import com.ff.products_service.dto.UpdateProductWithImagesRequest;
+import com.ff.products_service.dto.*;
 import com.ff.products_service.entity.Image;
 import com.ff.products_service.entity.Product;
 import com.ff.products_service.service.ImageService;
 import com.ff.products_service.service.ProductService;
-import com.ff.products_service.utils.ApiResponse;
-import com.ff.products_service.utils.ProductMapper;
-import com.ff.products_service.utils.ResourceNotFoundException;
-import com.ff.products_service.utils.ResponseBuilder;
+import com.ff.products_service.utils.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,20 +25,29 @@ public class ProductController {
     private final ProductMapper productMapper;
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.findAll();
+    public ResponseEntity<ApiResponse<List<Product>>> getAllProducts() {
+        List<Product> products = productService.findAll();
+        if (products.isEmpty()) {
+            throw new ResourceNotFoundException("Product not found");
+        }
+        return ResponseEntity.ok(ResponseBuilder.success("Products found", products));
     }
 
     @GetMapping("/{id}")
-    public Product getProductById(@PathVariable Long id) {
-        return productService.findById(id);
+    public ResponseEntity<ApiResponse<Product>> getProductById(@PathVariable Long id) {
+
+        Product product = productService.findById(id);
+        if (product == null) {
+            throw new ResourceNotFoundException("Product not found");
+        }
+        return ResponseEntity.ok(ResponseBuilder.success("Product found", product));
     }
 
     @PostMapping
     @Transactional
     public ResponseEntity<ApiResponse<ProductResponseDTO>> createProductWithImageUrls(@Valid @RequestBody ProductWithImagesRequest request) {
         // 1. Valider qu’il y a exactement une image principale
-
+        ImageValidationUtils.validateSingleMainImage(request.getImages());
 
         // 1. Créer le produit
         Product product = Product.builder()
@@ -78,32 +82,16 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<ApiResponse<ProductResponseDTO>> updateProduct(@PathVariable Long id, @Valid @RequestBody UpdateProductWithImagesRequest request) {
+    public ResponseEntity<ApiResponse<Product>> updateProduct(@PathVariable Long id, @Valid @RequestBody UpdateProductWithImagesRequest request) {
     Product product = productService.findById(id);
     if (product == null) {
         throw new ResourceNotFoundException("Product not found with id " + id);
     }
 
         // 1. Valider qu’il y a exactement une image principale
-        long mainImageCount = request.getImages().stream()
-                .filter(img -> !Boolean.TRUE.equals(img.getToDelete()))
-                .filter(UpdateProductWithImagesRequest.ImageRequest::getIsMain)
-                .count();
-
-        if (mainImageCount == 0) {
-            throw new IllegalArgumentException("Il doit y avoir une image principale.");
-        }
-
-        if (mainImageCount > 1) {
-            throw new IllegalArgumentException("Une seule image peut être marquée comme principale.");
-        }
-
+        ImageValidationUtils.validateSingleMainImage(request.getImages());
         // 2. Vérifier qu’on ne supprime pas une image principale
-        for (UpdateProductWithImagesRequest.ImageRequest imageReq : request.getImages()) {
-            if (Boolean.TRUE.equals(imageReq.getToDelete()) && Boolean.TRUE.equals(imageReq.getIsMain())) {
-                throw new IllegalArgumentException("Une image principale ne peut pas être supprimée directement. Veuillez d’abord en définir une autre comme principale.");
-            }
-        }
+        ImageValidationUtils.validateNoMainImageBeingDeleted(request.getImages());
 
     // Mise à jour des champs principaux
     product.setName(request.getName());
@@ -116,8 +104,7 @@ public class ProductController {
     for (UpdateProductWithImagesRequest.ImageRequest imageReq : request.getImages()) {
         Long imageId = imageReq.getId();
 
-        if (imageReq.getToDelete()) {
-            if (imageId != null) {
+        if (imageReq.getToDelete()) {            if (imageId != null) {
                 Image existingImage = imageService.findImageById(imageId);
                 if (existingImage == null) {
                     throw new ResourceNotFoundException("Image not found with id " + imageId);
@@ -148,8 +135,7 @@ public class ProductController {
     }
 
         Product updatedProduct = productService.findById(id);
-        ProductResponseDTO productDTO = productMapper.toProductResponseDTO(updatedProduct);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ResponseBuilder.created("Product has successful modified", productDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseBuilder.success("Product has been successfully modified", updatedProduct));
 }
 
     @DeleteMapping("/{id}")
@@ -172,9 +158,12 @@ public class ProductController {
     }
 
     @GetMapping("/{id}/stock")
-    public int getProductStock(@PathVariable Long id) {
+    public ResponseEntity<?> getProductStock(@PathVariable Long id) {
 
-        return productService.getStockByProductId(id);
-
+       Product product = productService.findById(id);
+       if (product == null) {
+           throw new ResourceNotFoundException("Product not found with id " + id);
+       }
+       return ResponseEntity.ok(ResponseBuilder.success("Product stock", product.getStock()));
     }
 }
