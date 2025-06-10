@@ -7,8 +7,9 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class ApiResponse {
+public class ApiResponse<T> {
     private String message;
     private int status;
     private LocalDateTime timestamp;
+    private T data;
 }

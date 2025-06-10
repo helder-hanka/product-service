@@ -1,7 +1,6 @@
 package com.ff.products_service.controller;
 
 import com.ff.products_service.dto.ProductResponseDTO;
-import com.ff.products_service.dto.ProductSaveResponseDTO;
 import com.ff.products_service.dto.ProductWithImagesRequest;
 import com.ff.products_service.dto.UpdateProductWithImagesRequest;
 import com.ff.products_service.entity.Image;
@@ -11,6 +10,7 @@ import com.ff.products_service.service.ProductService;
 import com.ff.products_service.utils.ApiResponse;
 import com.ff.products_service.utils.ProductMapper;
 import com.ff.products_service.utils.ResourceNotFoundException;
+import com.ff.products_service.utils.ResponseBuilder;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -42,7 +41,10 @@ public class ProductController {
 
     @PostMapping
     @Transactional
-    public Product createProductWithImageUrls(@Valid @RequestBody ProductWithImagesRequest request) {
+    public ResponseEntity<ApiResponse<ProductResponseDTO>> createProductWithImageUrls(@Valid @RequestBody ProductWithImagesRequest request) {
+        // 1. Valider qu’il y a exactement une image principale
+
+
         // 1. Créer le produit
         Product product = Product.builder()
                 .name(request.getName())
@@ -67,12 +69,16 @@ public class ProductController {
         }
         List<Image> images = imageService.getImagesByProductId(product.getId());
         product.setImages(images);
-        return product;
+
+        ProductResponseDTO productDTO = productMapper.toProductResponseDTO(product);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ResponseBuilder.created("Product has been successfully save.", productDTO));
     }
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<ProductSaveResponseDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody UpdateProductWithImagesRequest request) {
+    public ResponseEntity<ApiResponse<ProductResponseDTO>> updateProduct(@PathVariable Long id, @Valid @RequestBody UpdateProductWithImagesRequest request) {
     Product product = productService.findById(id);
     if (product == null) {
         throw new ResourceNotFoundException("Product not found with id " + id);
@@ -143,13 +149,12 @@ public class ProductController {
 
         Product updatedProduct = productService.findById(id);
         ProductResponseDTO productDTO = productMapper.toProductResponseDTO(updatedProduct);
-        ProductSaveResponseDTO response = new ProductSaveResponseDTO("The product has been successfully modified.", productDTO);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ResponseBuilder.created("Product has successful modified", productDTO));
 }
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> deleteProduct(@PathVariable Long id) {
         Product product = productService.findById(id);
         if (product == null) {
             throw new ResourceNotFoundException("Product not found with id " + id);
@@ -163,13 +168,7 @@ public class ProductController {
         imageService.deleteImageAllByProductId(id);
         productService.delete(id);
 
-        ApiResponse response = new ApiResponse(
-                "The product has been successfully deleted." ,
-                HttpStatus.OK.value(),
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ResponseBuilder.success("Product has been successfully deleted",null ));
     }
 
     @GetMapping("/{id}/stock")
