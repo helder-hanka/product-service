@@ -1,5 +1,6 @@
 package com.ff.products_service.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class ProductWithImagesRequest {
     private BigDecimal price;
     @NotNull(message = "Le stock est obligatoire")
     private int stock;
+    @Valid
     private List<ImageRequest> images;
 
     @Data
