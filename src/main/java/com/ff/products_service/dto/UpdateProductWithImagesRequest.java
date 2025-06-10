@@ -27,7 +27,6 @@ public class UpdateProductWithImagesRequest {
 
     @Data
     public static class ImageRequest {
-        @NotNull(message = "Le Id Image est obligatoire")
         private Long id;
         @NotBlank(message = "L'URL est obligatoire")
         private String url;
