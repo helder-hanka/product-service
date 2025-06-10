@@ -1,34 +1,16 @@
 package com.ff.products_service.utils;
 
+import com.ff.products_service.dto.ImageResponseDTO;
+import com.ff.products_service.dto.ProductResponseDTO;
 import com.ff.products_service.dto.ProductWithImagesRequest;
+import com.ff.products_service.entity.Image;
 import com.ff.products_service.entity.Product;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class ProductMapper {
-    public static ProductWithImagesRequest toResponse(Product product) {
-        ProductWithImagesRequest dto = new ProductWithImagesRequest();
-        dto.setId(product.getId());
-        dto.setName(product.getName());
-        dto.setDescription(product.getDescription());
-        dto.setPrice(product.getPrice());
-        dto.setStock(product.getStock());
-
-        if (product.getImages() != null) {
-            List<ProductWithImagesRequest.ImageRequest> imagesDto = product.getImages().stream()
-                    .map(image -> {
-                        ProductWithImagesRequest.ImageRequest imageDto = new ProductWithImagesRequest.ImageRequest();
-                        imageDto.setId(image.getId());
-                        imageDto.setUrl(image.getUrl());
-                        imageDto.setTitle(image.getTitle());
-                        imageDto.setMain(image.isMain());
-                        imageDto.setPosition(image.getPosition());
-                        return imageDto;
-                    })
-                    .toList();
-            dto.setImages(imagesDto);
-        }
-        return dto;
-    }
+@Mapper(componentModel = "spring")
+public interface ProductMapper {
+    ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
+    ProductResponseDTO toProductResponseDTO(Product product);
+    ImageResponseDTO toImageResponseDTO(Image image);
 }
