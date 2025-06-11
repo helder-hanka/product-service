@@ -29,9 +29,5 @@ public class ProductWithImagesRequest {
         private String url;
         @NotBlank
         private String title;
-        @NotNull
-        private boolean isMain;
-        @NotNull
-        private boolean toDelete;
     }
 }

@@ -1,9 +1,10 @@
 package com.ff.products_service.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public abstract class AbstractImageRequest {
-    private Boolean isMain;
+    private Boolean main;
     private Boolean toDelete;
 }

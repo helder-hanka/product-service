@@ -46,6 +46,7 @@ public class ProductController {
     @PostMapping
     @Transactional
     public ResponseEntity<ApiResponse<ProductResponseDTO>> createProductWithImageUrls(@Valid @RequestBody ProductWithImagesRequest request) {
+
         // 1. Valider qu’il y a exactement une image principale
         ImageValidationUtils.validateSingleMainImage(request.getImages());
 
@@ -65,7 +66,7 @@ public class ProductController {
                 Image image = Image.builder()
                         .url(imageReq.getUrl())
                         .title(imageReq.getTitle())
-                        .isMain(imageReq.isMain())
+                        .main(imageReq.getMain())
                         .product(product)
                         .build();
                 imageService.createImage(image);
@@ -118,7 +119,7 @@ public class ProductController {
             Image newImage = Image.builder()
                     .url(imageReq.getUrl())
                     .title(imageReq.getTitle())
-                    .isMain(imageReq.getIsMain())
+                    .main(imageReq.getMain())
                     .product(product)
                     .build();
             imageService.createImage(newImage);
@@ -129,7 +130,7 @@ public class ProductController {
             }
                 existingImage.setUrl(imageReq.getUrl());
                 existingImage.setTitle(imageReq.getTitle());
-                existingImage.setMain(imageReq.getIsMain());
+                existingImage.setMain(imageReq.getMain());
                 imageService.createImage(existingImage);
         }
     }

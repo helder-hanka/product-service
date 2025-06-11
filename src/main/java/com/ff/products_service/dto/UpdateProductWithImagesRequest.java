@@ -35,7 +35,7 @@ public class UpdateProductWithImagesRequest {
         @NotBlank(message = "Le Titre est obligatoire")
         private String title;
         @NotNull(message = "Le Main est obligatoire")
-        private Boolean isMain;
+        private Boolean main;
         @NotNull(message = "Le boolean delete est obligatoire")
         private Boolean toDelete;
     }

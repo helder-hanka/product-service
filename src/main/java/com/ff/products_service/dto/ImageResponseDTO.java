@@ -7,5 +7,5 @@ public class ImageResponseDTO {
     private Long id;
     private String url;
     private String title;
-    private boolean isMain;
+    private boolean main;
 }
