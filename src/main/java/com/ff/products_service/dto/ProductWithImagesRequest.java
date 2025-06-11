@@ -1,0 +1,33 @@
+package com.ff.products_service.dto;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Data
+public class ProductWithImagesRequest {
+    @NotBlank(message = "Le Nom est obligatoire")
+    private String name;
+    @NotBlank(message = "La déscription est obligatoire")
+    private String description;
+    @NotNull(message = "Le prix est obligatoire")
+    private BigDecimal price;
+    @NotNull(message = "Le stock est obligatoire")
+    private int stock;
+    @Valid
+    private List<ImageRequest> images;
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    public static class ImageRequest extends  AbstractImageRequest{
+        @NotBlank
+        private String url;
+        @NotBlank
+        private String title;
+    }
+}

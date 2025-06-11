@@ -1,5 +1,6 @@
 package com.ff.products_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -15,8 +16,10 @@ public class Image {
     private Long id;
     private String url;
     private String title;
+    private boolean main;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ProductId")
+    @JoinColumn(name = "product_id")
+    @JsonBackReference
     private  Product product;
 }
