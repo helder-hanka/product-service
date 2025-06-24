@@ -6,6 +6,9 @@ import com.ff.products_service.entity.Product;
 import com.ff.products_service.service.ImageService;
 import com.ff.products_service.service.ProductService;
 import com.ff.products_service.utils.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,14 +21,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
+@Tag(name="Produits", description = "Opérations sur les produits")
 public class ProductController {
+
 
     private final ProductService productService;
     private final ImageService imageService;
     private final ProductMapper productMapper;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Product>>> getAllProducts() {
+    @Operation(summary = "Lister tous les produits", description = "Récupère une liste de tous les produits disponibles dans le système.")
+    public ResponseEntity<ApiRes<List<Product>>> getAllProducts() {
         List<Product> products = productService.findAll();
         if (products.isEmpty()) {
             throw new ResourceNotFoundException("Product not found");
@@ -33,8 +39,9 @@ public class ProductController {
         return ResponseEntity.ok(ResponseBuilder.success("Products found", products));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Product>> getProductById(@PathVariable Long id) {
+    @GetMapping("/liste/{id}")
+    @Operation(summary = "Récupérer un produit par ID", description = "Récupère les détails d'un produit spécifique en utilisant son identifiant unique.")
+    public ResponseEntity<ApiRes<Product>> getProductById(@Parameter(name = "id", description = "ID unique du produit à récupérer", example = "1", required = true ) @PathVariable Long id) {
 
         Product product = productService.findById(id);
         if (product == null) {
@@ -45,7 +52,8 @@ public class ProductController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<ApiResponse<ProductResponseDTO>> createProductWithImageUrls(@Valid @RequestBody ProductWithImagesRequest request) {
+    @Operation(summary = "Ajouter un produit et ses images", description = "Crée un nouveau produit dans le système et lui associe des images.")
+    public ResponseEntity<ApiRes<ProductResponseDTO>> createProductWithImageUrls(@Valid @RequestBody ProductWithImagesRequest request) {
 
         // 1. Valider qu’il y a exactement une image principale
         ImageValidationUtils.validateSingleMainImage(request.getImages());
@@ -81,9 +89,10 @@ public class ProductController {
                 .body(ResponseBuilder.created("Product has been successfully save.", productDTO));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/modif/{id}")
     @Transactional
-    public ResponseEntity<ApiResponse<Product>> updateProduct(@PathVariable Long id, @Valid @RequestBody UpdateProductWithImagesRequest request) {
+    @Operation(summary = "Modifier un produit par ID et ses images", description = "Met à jour les informations d'un produit existant et gère ses images (ajout, modification, suppression).")
+    public ResponseEntity<ApiRes<Product>> updateProduct(@Parameter(description = "ID unique du produit à modifier", example = "1") @PathVariable Long id, @Valid @RequestBody UpdateProductWithImagesRequest request) {
     Product product = productService.findById(id);
     if (product == null) {
         throw new ResourceNotFoundException("Product not found with id " + id);
@@ -141,7 +150,9 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<ApiResponse<String>> deleteProduct(@PathVariable Long id) {
+    @Operation(summary = "Supprimer un produit par ID et ses images", description = "Supprime un produit et toutes les images associées de manière permanente.")
+
+    public ResponseEntity<ApiRes<String>> deleteProduct(@Parameter(description = "ID unique du produit à supprimer", example = "1") @PathVariable Long id) {
         Product product = productService.findById(id);
         if (product == null) {
             throw new ResourceNotFoundException("Product not found with id " + id);
@@ -159,7 +170,8 @@ public class ProductController {
     }
 
     @GetMapping("/{id}/stock")
-    public ResponseEntity<?> getProductStock(@PathVariable Long id) {
+    @Operation(summary = "Récupérer le nombre de stock du produit par ID", description = "Récupère la quantité de stock disponible pour un produit spécifique.")
+    public ResponseEntity<?> getProductStock(@Parameter(description = "ID unique du produit dont on veut récupérer le stock", example = "1") @PathVariable Long id) {
 
        Product product = productService.findById(id);
        if (product == null) {

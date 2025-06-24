@@ -7,7 +7,7 @@ import com.ff.products_service.entity.Image;
 import com.ff.products_service.entity.Product;
 import com.ff.products_service.service.ImageService;
 import com.ff.products_service.service.ProductService;
-import com.ff.products_service.utils.ApiResponse;
+import com.ff.products_service.utils.ApiRes;
 import com.ff.products_service.utils.ImageValidationUtils;
 import com.ff.products_service.utils.ProductMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,7 +70,7 @@ class ProductsServiceApplicationTests {
 	void getProductById_shouldReturnProduct() {
 		when(productService.findById(1L)).thenReturn(product);
 
-		ResponseEntity<ApiResponse<Product>> response = productController.getProductById(1L);
+		ResponseEntity<ApiRes<Product>> response = productController.getProductById(1L);
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
@@ -81,7 +81,7 @@ class ProductsServiceApplicationTests {
 	@Test
 	void getAllProducts_shouldReturnListOfProducts() {
 		when(productService.findAll()).thenReturn(List.of(product));
-		ResponseEntity<ApiResponse<List<Product>>> response = productController.getAllProducts();
+		ResponseEntity<ApiRes<List<Product>>> response = productController.getAllProducts();
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
@@ -93,7 +93,7 @@ class ProductsServiceApplicationTests {
 	@Test
 	void getProductStock_shouldReturnStock() {
 		when(productService.findById(1L)).thenReturn(product);
-		ResponseEntity<ApiResponse<Product>> response = productController.getProductById(1L);
+		ResponseEntity<ApiRes<Product>> response = productController.getProductById(1L);
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
@@ -114,7 +114,7 @@ class ProductsServiceApplicationTests {
 	@Test
 	void getProductStock_shouldReturnEmptyListWhenProductNotFound() {
 		when(productService.findById(1L)).thenReturn(product);
-		ResponseEntity<ApiResponse<Product>> response = productController.getProductById(1L);
+		ResponseEntity<ApiRes<Product>> response = productController.getProductById(1L);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
 		assertEquals(product.getId(), response.getBody().getData().getId());
@@ -231,7 +231,7 @@ class ProductsServiceApplicationTests {
 		when(imageService.findImageById(20L)).thenReturn(new Image());
 		when(productService.create(any(Product.class))).thenReturn(product);
 
-		ResponseEntity<ApiResponse<Product>> response = productController.updateProduct(1L, request);
+		ResponseEntity<ApiRes<Product>> response = productController.updateProduct(1L, request);
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -307,7 +307,7 @@ class ProductsServiceApplicationTests {
 		when(imageService.findImageById(1L)).thenReturn(img1);
 		when(productService.create(any())).thenReturn(product);
 
-		ResponseEntity<ApiResponse<Product>> response = productController.updateProduct(1L, request);
+		ResponseEntity<ApiRes<Product>> response = productController.updateProduct(1L, request);
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		verify(productService).create(any(Product.class));
