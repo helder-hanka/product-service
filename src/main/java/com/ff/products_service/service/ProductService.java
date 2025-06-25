@@ -1,18 +1,23 @@
 package com.ff.products_service.service;
 
 import com.ff.products_service.entity.Product;
+import com.ff.products_service.rabbitmq.events.ProductEvent;
+import com.ff.products_service.rabbitmq.events.ProductEventPublisher;
 import com.ff.products_service.repository.ProductRepository;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepo;
-    public ProductService(ProductRepository productRepo) {
-        this.productRepo = productRepo;
-    }
+    private final ProductEventPublisher publisher;
+
+
 
     public List<Product> findAll() {
         return productRepo.findAll();
@@ -23,7 +28,15 @@ public class ProductService {
     }
 
     public Product create(Product product) {
-        return productRepo.save(product);
+        Product savedProduct = productRepo.save(product);
+
+        // Publish product creation event
+        publisher.publish(new ProductEvent(
+                savedProduct.getId().toString(),
+                savedProduct.getName(),
+                savedProduct.getPrice()
+        ));
+        return savedProduct;
     }
 
     public Product update(Long id, Product product) {
